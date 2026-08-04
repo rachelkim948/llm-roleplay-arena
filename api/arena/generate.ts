@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../_shared';
 import { getGenAI, MODEL_PROMPT_ENHANCERS } from '../_shared';
 
 // 免费版最大 10s,Pro 版可到 60s;此处设为 60 上限,平台会自动截断

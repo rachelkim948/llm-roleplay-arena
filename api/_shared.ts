@@ -1,5 +1,20 @@
 import { GoogleGenAI } from '@google/genai';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+// Minimal request/response types to avoid runtime dependency on @vercel/node types
+// (Vercel Node.js runtime passes Express-like req/res objects)
+export interface VercelRequest {
+  method?: string;
+  body: any;
+  query?: Record<string, string | string[]>;
+  headers?: Record<string, string | string[]>;
+}
+export interface VercelResponse {
+  status: (code: number) => VercelResponse;
+  json: (body: any) => void;
+  send: (body: any) => void;
+  end: () => void;
+  setHeader: (name: string, value: string | string[]) => void;
+}
 
 // Lazy GoogleGenAI initialization
 export function getGenAI() {
@@ -176,5 +191,5 @@ export function generateHeuristicEvaluation(
   };
 }
 
-// Shared types for handler signatures (compatible with Express-like Vercel Node functions)
+// Shared types re-exported for handlers
 export type Handler = (req: VercelRequest, res: VercelResponse) => void | Promise<void>;

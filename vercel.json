@@ -9,7 +9,7 @@
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "functions": {
-    "api/arena/generate.ts": { "maxDuration": 60 },
-    "api/arena/evaluate.ts": { "maxDuration": 60 }
+    "api/arena/generate.ts": { "maxDuration": 60, "runtime": "@vercel/node@20" },
+    "api/arena/evaluate.ts": { "maxDuration": 60, "runtime": "@vercel/node@20" }
   }
 }

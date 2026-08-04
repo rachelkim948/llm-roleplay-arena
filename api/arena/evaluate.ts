@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../_shared';
 import { getGenAI, generateHeuristicEvaluation } from '../_shared';
 
 export const config = {
@@ -156,14 +156,14 @@ ${
     }
 
     if (!resultJson || !resultJson.evaluations) {
-      resultJson = generateHeuristicEvaluation(systemPrompt, userMessage, outputs);
+      resultJson = generateHeuristicEvaluation(systemPrompt, userMessage, outputs) as any;
     }
 
     resultJson.timestamp = new Date().toLocaleTimeString();
     return res.json(resultJson);
   } catch (error: any) {
     console.error('Error evaluating models:', error);
-    const fallback = generateHeuristicEvaluation(req.body?.systemPrompt || '', req.body?.userMessage || '', req.body?.outputs || []);
+    const fallback = generateHeuristicEvaluation(req.body?.systemPrompt || '', req.body?.userMessage || '', req.body?.outputs || []) as any;
     fallback.timestamp = new Date().toLocaleTimeString();
     return res.json(fallback);
   }
