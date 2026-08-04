@@ -10,6 +10,7 @@
   ],
   "functions": {
     "api/arena/generate.ts": { "maxDuration": 60, "runtime": "@vercel/node@20" },
-    "api/arena/evaluate.ts": { "maxDuration": 60, "runtime": "@vercel/node@20" }
+    "api/arena/evaluate.ts": { "maxDuration": 60, "runtime": "@vercel/node@20" },
+    "api/arena/ping.ts": { "runtime": "@vercel/node@20" }
   }
 }
