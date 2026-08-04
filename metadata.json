@@ -1,0 +1,6 @@
+{
+  "name": "角色扮演与情感陪伴模型竞技场",
+  "description": "面向AI模型策略与情感陪伴PM的4模型同台竞技与LLM-as-a-Judge评测归因工具",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

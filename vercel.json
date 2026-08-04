@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/api/arena/generate", "destination": "/api/arena/generate" },
+    { "source": "/api/arena/evaluate", "destination": "/api/arena/evaluate" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/arena/generate.ts": { "maxDuration": 60 },
+    "api/arena/evaluate.ts": { "maxDuration": 60 }
+  }
+}
