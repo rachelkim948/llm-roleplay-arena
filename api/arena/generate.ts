@@ -1,8 +1,13 @@
 import type { VercelRequest, VercelResponse } from '../_shared';
-import { MODEL_PROMPT_ENHANCERS } from '../_shared';
 
 export const config = {
   maxDuration: 60,
+};
+
+const MODEL_PROMPT_ENHANCERS: Record<string, string> = {
+  'deepseek-v3': '[MODEL EMULATION DIRECTIVE - DeepSeek-V3 style] Emphasize deep reasoning, logic depth, and authentic emotional sincerity. Avoid superficial politeness. Focus on psychological motivation. Tone: Calibrated, reflective, sincere.',
+  'qwen-38-max': '[MODEL EMULATION DIRECTIVE - Qwen3.8-Max style] Comprehensive Chinese understanding, literary finesse, and highly natural conversational flow. Tone: Elegant, natural, empathetic, engaging.',
+  'glm-52': '[MODEL EMULATION DIRECTIVE - GLM-5.2 style] Exceptional Chinese reasoning, nuanced emotion recognition, and roleplay fidelity. Tone: Natural, empathetic, highly intelligent, elegant.',
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -21,14 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const modelEmulation = MODEL_PROMPT_ENHANCERS[modelId] || '';
-    const combinedSystemPrompt = `
-${systemPrompt || '你是一个角色扮演AI。'}
-
-${modelEmulation}
-
-【重要原则】
-必须严格符合角色人设，切勿破坏沉浸感，严禁说出"我是AI模型"等脱离角色的言语。
-`;
+    const combinedSystemPrompt = (systemPrompt || '你是一个角色扮演AI。') + '\n\n' + modelEmulation;
 
     const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
       { role: 'system', content: combinedSystemPrompt },
