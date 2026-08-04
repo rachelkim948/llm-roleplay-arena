@@ -1,6 +1,6 @@
 import React from 'react';
 import { ModelConfig, ModelOutput, EvaluationResult } from '../types';
-import { Trophy, Sparkles, ShieldCheck, AlertTriangle, Lightbulb, BarChart3, RotateCcw } from 'lucide-react';
+import { Trophy, ShieldCheck, AlertTriangle, Lightbulb, BarChart3 } from 'lucide-react';
 import {
   Radar,
   RadarChart,
@@ -17,7 +17,6 @@ interface JudgeEvaluationPanelProps {
   models: ModelConfig[];
   outputs: Record<string, ModelOutput>;
   evaluationResult: EvaluationResult | null;
-  onRunEvaluation: () => void;
   isEvaluating: boolean;
   systemPrompt: string;
   userMessage: string;
@@ -25,12 +24,9 @@ interface JudgeEvaluationPanelProps {
 
 export const JudgeEvaluationPanel: React.FC<JudgeEvaluationPanelProps> = ({
   models,
-  outputs,
   evaluationResult,
-  onRunEvaluation,
   isEvaluating,
 }) => {
-  const hasOutputs = (Object.values(outputs) as ModelOutput[]).some((o) => o.text && o.status === 'completed');
 
   React.useEffect(() => {
     if (evaluationResult && evaluationResult.winnerModelId) {
@@ -71,8 +67,8 @@ export const JudgeEvaluationPanel: React.FC<JudgeEvaluationPanelProps> = ({
 
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
-      {/* Top Banner & Call to Action */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      {/* Top Banner */}
+      <div className="border-b border-slate-800 pb-5">
         <div>
           <div className="flex items-center space-x-2">
             <Trophy className="h-5 w-5 text-amber-400 animate-bounce" />
@@ -87,35 +83,13 @@ export const JudgeEvaluationPanel: React.FC<JudgeEvaluationPanelProps> = ({
             以“关系质量”为核心，从角色一致性(25%)、情绪理解(30%)、叙事牵引力(10%)、真实互动感(20%)、关系连续性(15%) 深度诊断
           </p>
         </div>
-
-        <button
-          onClick={onRunEvaluation}
-          disabled={!hasOutputs || isEvaluating}
-          className={`px-6 py-3 rounded-xl font-bold text-xs flex items-center space-x-2 transition-all shadow-xl ${
-            !hasOutputs || isEvaluating
-              ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-              : 'bg-gradient-to-r from-amber-500 via-orange-500 to-purple-600 text-white hover:brightness-110 shadow-amber-500/20 active:scale-95'
-          }`}
-        >
-          {isEvaluating ? (
-            <>
-              <RotateCcw className="h-4 w-4 animate-spin" />
-              <span>裁判大模型 5 维评测中...</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-4 w-4 fill-current text-amber-200" />
-              <span>一键打包投去评测</span>
-            </>
-          )}
-        </button>
       </div>
 
       {!evaluationResult && !isEvaluating && (
         <div className="py-12 flex flex-col items-center justify-center border border-dashed border-slate-800 rounded-xl bg-slate-950/40 text-center">
           <BarChart3 className="h-10 w-10 text-slate-600 mb-2" />
           <p className="text-xs text-slate-400 max-w-md">
-            尚未进行 LLM 评测。生成 3 个模型输出后，点击“一键打包投去评测”，即可依据 AI Companion Benchmark 标准生成极坐标对比雷达图、维度得分及扣分归因分析！
+            尚未进行 LLM 评测。在竞技场页面生成 3 个模型输出后，点击「打包投去评测」，即可依据 AI Companion Benchmark 标准生成极坐标对比雷达图、维度得分及扣分归因分析！
           </p>
         </div>
       )}

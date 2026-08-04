@@ -19,7 +19,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     let resultJson: any = null;
 
-    if (process.env.GEMINI_API_KEY) {
+    const deepseekKey = process.env.DEEPSEEK_API_KEY;
+    if (deepseekKey) {
       try {
         const judgePrompt = `
 你是 AI Companion Benchmark 资深评测专家与 LLM-as-a-Judge 裁判模型。
@@ -136,29 +137,35 @@ ${
 }
 `;
 
-        const geminiApiKey = process.env.GEMINI_API_KEY;
-        const geminiRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ role: 'user', parts: [{ text: judgePrompt }] }],
-              generationConfig: { responseMimeType: 'application/json', temperature: 0.2 },
-            }),
-          }
-        );
+        console.log('calling DeepSeek Judge API');
+        const dsRes = await fetch('https://api.deepseek.com/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${deepseekKey}`,
+          },
+          body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: [
+              { role: 'system', content: '你是AI评测专家，必须严格以JSON格式输出评测结果，不包含任何额外文字或markdown代码块标记。' },
+              { role: 'user', content: judgePrompt },
+            ],
+            temperature: 0.2,
+            response_format: { type: 'json_object' },
+          }),
+        });
 
-        const geminiData = await geminiRes.json();
-        if (!geminiRes.ok) {
-          throw new Error(`Gemini API 错误: ${geminiData?.error?.message || '请求失败'}`);
+        const dsData: any = await dsRes.json();
+        console.log('DeepSeek Judge response status:', dsRes.status);
+        if (!dsRes.ok) {
+          throw new Error(`DeepSeek Judge API 错误: ${dsData?.error?.message || '请求失败'}`);
         }
 
-        const text = geminiData?.candidates?.[0]?.content?.parts?.map((p: { text: string }) => p.text).join('') || '{}';
+        const text = dsData?.choices?.[0]?.message?.content || '{}';
         const cleanJsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
         resultJson = JSON.parse(cleanJsonStr);
-      } catch (geminiError) {
-        console.warn('Gemini LLM Judge evaluation failed, falling back to heuristic evaluation generator:', geminiError);
+      } catch (judgeError) {
+        console.warn('DeepSeek LLM Judge evaluation failed, falling back to heuristic evaluation generator:', judgeError);
       }
     }
 

@@ -15,7 +15,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand & PM Internship Tag */}
+        {/* Brand */}
         <div className="flex items-center space-x-3">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-0.5 shadow-lg shadow-purple-500/20">
             <div className="h-full w-full bg-slate-950 rounded-[10px] flex items-center justify-center">
@@ -27,9 +27,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <h1 className="text-base font-bold bg-gradient-to-r from-purple-200 via-indigo-100 to-white bg-clip-text text-transparent">
                 LLM Roleplay Arena
               </h1>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                模型策略 PM 实习作品集
-              </span>
             </div>
             <p className="text-xs text-slate-400">
               三模型同台竞技与多轮对抗深度归因工作台

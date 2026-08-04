@@ -496,7 +496,6 @@ export default function App() {
             models={DEFAULT_MODELS}
             outputs={outputs}
             evaluationResult={evaluationResult}
-            onRunEvaluation={handleRunEvaluation}
             isEvaluating={isEvaluating}
             systemPrompt={systemPrompt}
             userMessage={userMessage}
