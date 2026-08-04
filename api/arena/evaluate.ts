@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '../_shared';
-import { getGenAI, generateHeuristicEvaluation } from '../_shared';
+import { generateHeuristicEvaluation } from '../_shared';
 
 export const config = {
   maxDuration: 60,
@@ -21,8 +21,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (process.env.GEMINI_API_KEY) {
       try {
-        const ai = await getGenAI();
-
         const judgePrompt = `
 你是 AI Companion Benchmark 资深评测专家与 LLM-as-a-Judge 裁判模型。
 请对以下 3 个 AI 模型在情感陪伴/角色扮演场景下的输出，按照 AI Companion Benchmark 的 5 大核心维度进行 1-5 分制客观评测，并精确计算加权综合得分（满分 5.0 分）。
@@ -138,16 +136,25 @@ ${
 }
 `;
 
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: [{ role: 'user', parts: [{ text: judgePrompt }] }],
-          config: {
-            responseMimeType: 'application/json',
-            temperature: 0.2,
-          },
-        });
+        const geminiApiKey = process.env.GEMINI_API_KEY;
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ role: 'user', parts: [{ text: judgePrompt }] }],
+              generationConfig: { responseMimeType: 'application/json', temperature: 0.2 },
+            }),
+          }
+        );
 
-        const text = response.text || '{}';
+        const geminiData = await geminiRes.json();
+        if (!geminiRes.ok) {
+          throw new Error(`Gemini API 错误: ${geminiData?.error?.message || '请求失败'}`);
+        }
+
+        const text = geminiData?.candidates?.[0]?.content?.parts?.map((p: { text: string }) => p.text).join('') || '{}';
         const cleanJsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
         resultJson = JSON.parse(cleanJsonStr);
       } catch (geminiError) {

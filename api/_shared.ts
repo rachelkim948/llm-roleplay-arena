@@ -14,16 +14,6 @@ export interface VercelResponse {
   setHeader: (name: string, value: string | string[]) => void;
 }
 
-// Lazy GoogleGenAI initialization (dynamic import to avoid ESM/CJS issues at cold start)
-export async function getGenAI() {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('GEMINI_API_KEY environment variable is not configured.');
-  }
-  const { GoogleGenAI } = await import('@google/genai');
-  return new GoogleGenAI({ apiKey });
-}
-
 // Model Persona Behavioral Proxies (Simulating key features of the models for true arena experience)
 export const MODEL_PROMPT_ENHANCERS: Record<string, string> = {
   'deepseek-v3': `

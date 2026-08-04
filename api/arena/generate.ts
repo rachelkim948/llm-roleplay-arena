@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '../_shared';
-import { getGenAI, MODEL_PROMPT_ENHANCERS } from '../_shared';
+import { MODEL_PROMPT_ENHANCERS } from '../_shared';
 
 // 免费版最大 10s,Pro 版可到 60s;此处设为 60 上限,平台会自动截断
 export const config = {
@@ -262,10 +262,16 @@ ${modelEmulation}
       }
     }
 
-    const ai = await getGenAI();
+    // Fallback: Gemini REST API via native fetch (avoid @google/genai ESM issues on Vercel)
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (!geminiApiKey) {
+      return res.status(400).json({
+        error: '未配置任何可用模型的 API Key。请在 .env 或 Vercel Environment Variables 中设置 DEEPSEEK_API_KEY / QWEN_API_KEY / GLM_API_KEY / GEMINI_API_KEY。',
+        latencyMs: Date.now() - startTime,
+      });
+    }
 
     const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
-
     if (Array.isArray(history)) {
       history.forEach((h: { sender: string; text: string }) => {
         contents.push({
@@ -274,22 +280,30 @@ ${modelEmulation}
         });
       });
     }
+    contents.push({ role: 'user', parts: [{ text: userMessage }] });
 
-    contents.push({
-      role: 'user',
-      parts: [{ text: userMessage }],
-    });
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: combinedSystemPrompt }] },
+          contents,
+          generationConfig: { temperature: Math.min(Math.max(temperature, 0.1), 1.0) },
+        }),
+      }
+    );
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents,
-      config: {
-        systemInstruction: combinedSystemPrompt,
-        temperature: Math.min(Math.max(temperature, 0.1), 1.0),
-      },
-    });
+    const geminiData = await geminiRes.json();
+    if (!geminiRes.ok) {
+      return res.status(502).json({
+        error: `Gemini API 错误: ${geminiData?.error?.message || '请求失败'}`,
+        latencyMs: Date.now() - startTime,
+      });
+    }
 
-    const outputText = response.text || '（模型无响应）';
+    const outputText = geminiData?.candidates?.[0]?.content?.parts?.map((p: { text: string }) => p.text).join('') || '（模型无响应）';
     const latencyMs = Date.now() - startTime;
     const tokenCount = Math.round(outputText.length * 1.2);
     const tokensPerSec = Math.round((tokenCount / (latencyMs / 1000)) * 10) / 10;
