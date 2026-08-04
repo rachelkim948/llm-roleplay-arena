@@ -12,6 +12,6 @@
   "functions": {
     "api/arena/generate.ts": { "maxDuration": 60 },
     "api/arena/evaluate.ts": { "maxDuration": 60 },
-    "api/arena/ping.ts": {}
+    "api/arena/ping.ts": { "maxDuration": 10 }
   }
 }
