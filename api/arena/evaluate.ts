@@ -21,7 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (process.env.GEMINI_API_KEY) {
       try {
-        const ai = getGenAI();
+        const ai = await getGenAI();
 
         const judgePrompt = `
 你是 AI Companion Benchmark 资深评测专家与 LLM-as-a-Judge 裁判模型。

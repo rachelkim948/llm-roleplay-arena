@@ -262,7 +262,7 @@ ${modelEmulation}
       }
     }
 
-    const ai = getGenAI();
+    const ai = await getGenAI();
 
     const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
 

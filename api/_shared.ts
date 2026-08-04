@@ -1,5 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
 // Minimal request/response types to avoid runtime dependency on @vercel/node types
 // (Vercel Node.js runtime passes Express-like req/res objects)
 export interface VercelRequest {
@@ -16,12 +14,13 @@ export interface VercelResponse {
   setHeader: (name: string, value: string | string[]) => void;
 }
 
-// Lazy GoogleGenAI initialization
-export function getGenAI() {
+// Lazy GoogleGenAI initialization (dynamic import to avoid ESM/CJS issues at cold start)
+export async function getGenAI() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY environment variable is not configured.');
   }
+  const { GoogleGenAI } = await import('@google/genai');
   return new GoogleGenAI({ apiKey });
 }
 
